@@ -1,0 +1,45 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Workout {
+  id        BigInt   @id @default(autoincrement())
+  date      DateTime @db.Date
+  createdAt DateTime @default(now())
+  restDay Boolean @default(false)
+
+  exercises WorkoutExercise[]
+}
+
+model WorkoutExercise {
+  id        BigInt  @id @default(autoincrement())
+  workoutId BigInt
+  name      String  @db.VarChar(80)
+  order     Int
+
+  workout   Workout @relation(fields: [workoutId], references: [id], onDelete: Cascade)
+  sets      ExerciseSet[]
+}
+
+model ExerciseSet {
+  id                BigInt @id @default(autoincrement())
+  workoutExerciseId BigInt
+  order             Int
+  weight            Decimal? @db.Decimal(8, 2)
+  reps              Int?
+
+  workoutExercise WorkoutExercise @relation(fields: [workoutExerciseId], references: [id], onDelete: Cascade)
+
+  @@index([workoutExerciseId])
+}
