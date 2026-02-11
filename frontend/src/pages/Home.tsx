@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import FlameIcon from "../assets/Subtract.svg?react";
 import { useEffect, useState } from "react";
-import { computeMood, computeTodayCoach, computeStreak, computeWeeklyHighlights, todayKey, type ApiWorkout } from "../components/insights";
+import { computeMood, computeStreak, computeWeeklyHighlights, todayKey, type ApiWorkout } from "../components/insights";
 
 // encouragement lines
 const ENCOURAGEMENT_LINES = [
@@ -28,7 +28,6 @@ export default function Home() {
     const [streak, setStreak] = useState(0);
     const [mood, setMood] = useState("meh");
     const [weekly, setWeekly] = useState<string[]>([]);
-    const [coachLine, setCoachLine] = useState("-");
 
     useEffect(() => {
         (async () => {
@@ -47,10 +46,7 @@ export default function Home() {
             setMood(computeMood(workouts, end));
             setWeekly(computeWeeklyHighlights(workouts, end));
 
-            const rDay = await fetch(`/api/workouts?date=${end}`);
-            const jDay = await rDay.json();
-            const dayWorkouts: ApiWorkout[] = jDay.workouts ?? [];
-            setCoachLine(computeTodayCoach(dayWorkouts));
+            // Removed coachLine usage as it was not displayed in the UI
         })();
     }, []);
     useEffect(() => {

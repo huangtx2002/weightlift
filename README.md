@@ -37,12 +37,43 @@ Much of the algorithm is hidden behind the UI, leaving only the highlights, coac
 
 ---
 
-## Setup (Local Demo)
+## Setup Options
+
+You can run Topset in two ways:
+
+### Option 1: Docker (Recommended) 🐳
+
+The easiest way to run the entire stack with zero configuration.
+
+**Prerequisites:**
+- Docker (version 20.10+)
+- Docker Compose (version 2.0+)
+
+**Quick Start:**
+```bash
+# Start everything
+docker-compose up --build
+
+# Access the app
+# Frontend: http://localhost:5273
+# Backend:  http://localhost:8002
+```
+
+That's it! Docker will automatically:
+- Start MySQL database
+- Run Prisma migrations
+- Start backend API
+- Build and serve frontend
+
+For detailed Docker instructions, see **[DOCKER.md](DOCKER.md)**.
+
+---
+
+### Option 2: Local Development
 
 Running the full application locally requires Node.js, MySQL, and npm. The app consists of a React frontend, a Node.js backend, and a MySQL database.
 
-### Requirements
-
+**Requirements:**
 - Node.js 18 or newer (Node 20 LTS recommended)
 - npm (included with Node.js)
 - MySQL 8 or newer
@@ -50,47 +81,56 @@ Running the full application locally requires Node.js, MySQL, and npm. The app c
 
 You can verify installations using `node -v`, `npm -v`, and `mysql --version`.
 
----
-
-### Database
+#### Database Setup
 
 MySQL must be running locally.  
 A database named `lifting` is required, along with a user that has permission to create and alter tables.
 
 Example SQL configuration:
 
-`CREATE DATABASE lifting;`  
-`CREATE USER 'lifting_app'@'localhost' IDENTIFIED BY 'your_password';`  
-`GRANT ALL PRIVILEGES ON lifting.* TO 'lifting_app'@'localhost';`  
-`FLUSH PRIVILEGES;`
+```sql
+CREATE DATABASE lifting;
+CREATE USER 'lifting_app'@'localhost' IDENTIFIED BY 'your_password';
+GRANT ALL PRIVILEGES ON lifting.* TO 'lifting_app'@'localhost';
+FLUSH PRIVILEGES;
+```
 
----
+**Note:** If you're using Docker, you don't need to create the database manually. Docker handles this automatically. The above SQL is only needed for local development without Docker, and you may need to use port 3406 if that's what your local MySQL is configured to use.
 
-### Backend Configuration
+#### Backend Configuration
 
 The backend requires a `.env` file located in the `backend/` directory.
 
 Example contents:
 
-`DATABASE_URL="mysql://lifting_app:your_password@localhost:3306/lifting"`  
-`PORT=3001`
+```env
+DATABASE_URL="mysql://lifting_app:your_password@localhost:3306/lifting"
+PORT=8002
+```
 
-Backend dependencies are installed using `npm install`.
+Install dependencies and set up database:
+```bash
+cd backend
+npm install
+npx prisma generate
+npx prisma migrate dev
+npm run dev
+```
 
-Prisma client generation and database migrations are run with  
-`npx prisma generate` and `npx prisma migrate dev`.
+The backend server runs on `http://localhost:8002`.
 
-The backend server is started using `npm run dev` and runs on `http://localhost:3001`.
+#### Frontend Configuration
 
----
+Install dependencies and start development server:
+```bash
+cd frontend
+npm install
+npm run dev
+```
 
-### Frontend Configuration
+The frontend runs on `http://localhost:5273`.
 
-Frontend dependencies are installed from the `frontend/` directory using `npm install`.
-
-The frontend development server is started using `npm run dev` and runs on `http://localhost:5173`.
-
-Once both frontend and backend are running, the application can be accessed by opening `http://localhost:5173` in a browser.
+Once both frontend and backend are running, access the application at `http://localhost:5273`.
 
 ---
 
