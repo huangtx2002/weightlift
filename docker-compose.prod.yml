@@ -1,0 +1,66 @@
+version: '3.8'
+
+services:
+  # MySQL Database
+  db:
+    image: mysql:8.0
+    container_name: weightlift-db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: 44ZYd3hiZ0eDEG2nFiubM4K8
+      MYSQL_DATABASE: lifting
+      MYSQL_USER: lifting_app
+      MYSQL_PASSWORD: 4aTGLgKzv1adlr6gzdetmZvQ
+    ports:
+      - "127.0.0.1:3406:3306"  # Only accessible from localhost
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p44ZYd3hiZ0eDEG2nFiubM4K8"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app-network
+
+  # Backend API
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: weightlift-backend
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: mysql://lifting_app:4aTGLgKzv1adlr6gzdetmZvQ@db:3306/lifting
+      PORT: 8002
+      NODE_ENV: production
+    ports:
+      - "8002:8002"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - app-network
+
+  # Frontend
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        - VITE_API_URL=http://localhost:8002
+    container_name: weightlift-frontend
+    restart: unless-stopped
+    ports:
+      - "5273:80"
+    depends_on:
+      - backend
+    networks:
+      - app-network
+
+volumes:
+  mysql_data:
+
+networks:
+  app-network:
+    driver: bridge

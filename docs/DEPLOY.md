@@ -27,7 +27,7 @@ cd weightlift
 ### 3. Run Deployment Script
 
 ```bash
-./deploy.sh
+./scripts/deploy.sh
 ```
 
 That's it! The script will:
@@ -37,9 +37,24 @@ That's it! The script will:
 - ✅ Start the application
 - ✅ Run database migrations
 
-### 4. Access Your App
+### 4. Configure Firewall (Important!)
 
-After deployment completes:
+The deployment script does NOT configure the firewall. You need to open the ports:
+
+```bash
+# Option 1: Use our script (recommended)
+./scripts/setup-firewall.sh
+
+# Option 2: Manual configuration
+ufw allow ssh
+ufw allow 5273/tcp  # Frontend
+ufw allow 8002/tcp  # Backend API
+ufw enable
+```
+
+### 5. Access Your App
+
+After deployment and firewall configuration:
 
 ```
 Frontend: http://your-droplet-ip:5273
